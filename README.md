@@ -1,4 +1,4 @@
-axiscam
+AxisCam
 =======
 
 Axis (VAPIX) camera control in Node
@@ -16,21 +16,44 @@ To run, make a settings.json file in the root folder:
 }
 ```
 
-This provides the address and credentials for the camera, a name and whether to emit
-any detected motion events.
+This provides the address and credentials for the camera, an optional name and whether to emit
+any detected motion events (defaults to False). 
+
+Test
+----
+
+To run the tests, create a settings.json file in the test folder to point to a test camera.
+
+Motion Detection
+----------------
+
+If motion detection is activted, a motion stream is automatically started and any motion messages
+where the motion value exceeds the threshold value is emitted.
+
+```javascript
+var axis = require('lib/axis'),
+    util = require('util')
+
+var axisCam = axis.createClient({url: 'https://<user>:<passwd>@<addr>'})
+
+axis.on('motion', function(data) {
+        util.inspect(data)
+})
+```
 
 API
 ---
 
 ###createImageStream
 
-Streams an image from the camera
+Streams an image from the camera:
 
 ```javascript
 var axis = require('lib/axis'),
     fs = require('fs')
 
-var axisCam = axis.createImageStream().pipe(fs.createWriteStream('./image.jpg'))
+var axisCam = axis.createClient({url: 'https://<user>:<passwd>@<addr>'})
+axisCam.createImageStream().pipe(fs.createWriteStream('./image.jpg'))
 ```
 
 ###createVideoStream
@@ -49,5 +72,6 @@ Creates a stream of javascript objects that represent a snapshot of the Axis cam
 var axis = require('lib/axis'),
     es = require('event-stream')
 
-var axisCam = axis.createMotionStream().pipe(es.stringify()).pipe(process.stdout)
+var axisCam = axis.createClient({url: 'https://<user>:<passwd>@<addr>'})
+axisCam.createMotionStream().pipe(es.stringify()).pipe(process.stdout)
 ```
