@@ -14,8 +14,9 @@
     }
     , "dependencies" :
         { "underscore" : "1.4.4"
-        , "request" : "2.16.6"
-        , "event-stream": "3.0.13"
+        , "request" : "2.20.0"
+        , "event-stream": "3.0.14"
+        , "file-on-write": "0.1.0"
     }
     , "devDependencies" :
         { "mocha" : "1.x"
