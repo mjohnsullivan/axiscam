@@ -17,7 +17,7 @@ To run, make a settings.json file in the root folder:
 ```
 
 This provides the address and credentials for the camera, an optional name and whether to emit
-any detected motion events (defaults to False). 
+any detected motion events (defaults to false). 
 
 Test
 ----
@@ -53,7 +53,9 @@ var axis = require('lib/axis'),
     fs = require('fs')
 
 var axisCam = axis.createClient({url: 'https://<user>:<passwd>@<addr>'})
-axisCam.createImageStream().pipe(fs.createWriteStream('./image.jpg'))
+axisCam.createImageStream(null, function(err, stream) {
+    stream.pipe(fs.createWriteStream('./image.jpg'))  
+})
 ```
 
 ###createVideoStream
@@ -73,5 +75,7 @@ var axis = require('lib/axis'),
     es = require('event-stream')
 
 var axisCam = axis.createClient({url: 'https://<user>:<passwd>@<addr>'})
-axisCam.createMotionStream().pipe(es.stringify()).pipe(process.stdout)
+axisCam.createMotionStream(function(err, stream) {
+    stream.pipe(es.stringify()).pipe(process.stdout)  
+})
 ```

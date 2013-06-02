@@ -26,25 +26,27 @@ describe('axis', function() {
 
     describe('createImageStream', function() {
         it('should stream an image from an Axis camera', function(done) {
-            var imageStream = this.axisCam.createImageStream()
-            var soi = false
-            var buff
+            this.axisCam.createImageStream(null, function(err, imageStream) {
+                assert.ifError(err)
 
-            imageStream.on('data', function(data) {
-                // Test for JPEG SOI
-                if (!soi) {
-                    assert.equal(data.readUInt16BE(0), 0xffd8)
-                    soi = true
-                }
-                buff = data
+                var soi = false
+                var buff
+
+                imageStream.on('data', function(data) {
+                    // Test for JPEG SOI
+                    if (!soi) {
+                        assert.equal(data.readUInt16BE(0), 0xffd8)
+                        soi = true
+                    }
+                    buff = data
+                })
+
+                imageStream.on('end', function(data) {
+                    // Test for JPEG EOI
+                    assert.equal(buff.readUInt16BE(buff.length - 2), 0xffd9)
+                    done()
+                })
             })
-
-            imageStream.on('end', function(data) {
-                // Test for JPEG EOI
-                assert.equal(buff.readUInt16BE(buff.length - 2), 0xffd9)
-                done()
-            })
-
         })
     })
 
