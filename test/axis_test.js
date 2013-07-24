@@ -3,49 +3,90 @@
  */
 
 var assert = require('assert'),
+    util = require('util'),
+    http = require('http'),
+    vapixEmulator = require('./vapix_emulator'),
     createClient = require('../lib/axis').createClient
+
 
 describe('axis', function() {
 
-    this.timeout(5000)
-
-    beforeEach(function() {
-        this.axisCam = createClient(JSON.parse(require('fs').readFileSync('./settings.json')))
+    before(function() {
+        this.vapixServer = vapixEmulator.startServer()
     })
 
-    describe('systemTime', function() {
-        it('should provide the system time on the Axis camera', function(done) {
-            this.axisCam.systemTime(function(err, time) {
-                assert.ifError(err)
-                assert(time instanceof Date)
+    after(function() {
+        this.vapixServer.close()
+    })
+
+    beforeEach(function() {
+        this.axisCam = createClient({url: 'http://localhost:3000'})
+    })
+
+    describe('createClient()', function() {
+        it('should create a new AxisCam instance with an internal active mjpg stream', function(done) {
+            var that = this
+            assert(this.axisCam)
+            assert(this.axisCam.jpgStream)
+            this.axisCam.jpgStream.once('data', function(data) {
+                // Check valid start/end bytes for JPG
+                assert.equal(data.readUInt16BE(0), 0xffd8)
+                assert.equal(data.readUInt16BE(data.length-2), 0xffd9)
+                done()
+            })
+        })
+    })
+
+    describe('imageStream()', function() {
+        it('should return a valid stream of images', function(done) {
+            var jpgCount = 0
+
+            this.axisCam.jpgStream.on('data', function(data) {
+                assert.equal(data.readUInt16BE(0), 0xffd8)
+                assert.equal(data.readUInt16BE(data.length-2), 0xffd9)
+                jpgCount++
+            })
+
+            this.axisCam.jpgStream.on('end', function() {
+                assert.equal(jpgCount, 10)
                 done()
             })
 
         })
     })
 
-    describe('createImageStream', function() {
-        it('should stream an image from an Axis camera', function(done) {
-            this.axisCam.createImageStream(null, function(err, imageStream) {
+    describe('_image', function() {
+        it('should hold a valid jpg of the last received image', function(done) {
+            var that = this
+            assert(!this.axisCam._image) // should be null as no images have been received yet
+            this.axisCam.jpgStream.once('data', function(data) {
+                assert(that.axisCam._image)
+                assert.equal(that.axisCam._image.readUInt16BE(0), 0xffd8)
+                assert.equal(that.axisCam._image.readUInt16BE(data.length-2), 0xffd9)
+                done()
+            })
+        })
+    })
+
+    describe('image()', function() {
+        it('should return the next image received from the camera', function(done) {
+            this.axisCam.image(function(err, image) {
                 assert.ifError(err)
+                assert(image)
+                assert.equal(image.readUInt16BE(0), 0xffd8)
+                assert.equal(image.readUInt16BE(image.length-2), 0xffd9)
+                done()
+            })
+        })
+    })
 
-                var soi = false
-                var buff
-
-                imageStream.on('data', function(data) {
-                    // Test for JPEG SOI
-                    if (!soi) {
-                        assert.equal(data.readUInt16BE(0), 0xffd8)
-                        soi = true
-                    }
-                    buff = data
-                })
-
-                imageStream.on('end', function(data) {
-                    // Test for JPEG EOI
-                    assert.equal(buff.readUInt16BE(buff.length - 2), 0xffd9)
-                    done()
-                })
+    describe('time()', function() {
+        it('should return the camera\'s time', function(done) {
+            this.axisCam.time(function(err, time) {
+                assert.ifError(err)
+                assert(time)
+                assert.deepEqual(time, new Date('Jul 24, 2013 19:19:17'))
+                done()
             })
         })
     })

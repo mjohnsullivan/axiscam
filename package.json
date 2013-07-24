@@ -1,7 +1,7 @@
 { "name": "axiscam"
     , "description": "Axis (VAPIX) camera control in Node"
     , "author": "Matt Sullivan <matt.j.sullivan@gmail.com>"
-    , "version": "0.0.6"
+    , "version": "0.1.0"
     , "main": "lib/axis.js"
     , "scripts": 
         { "test": "mocha",
@@ -14,8 +14,8 @@
     , "bugs" : { "url" : "https://github.com/mjohnsullivan/axiscam/issues"
     }
     , "dependencies" :
-        { "underscore" : "1.4.4"
-        , "event-stream": "3.0.14"
+        { "underscore" : "1.5.1"
+        , "event-stream": "3.0.16"
     }
     , "devDependencies" :
         { "mocha" : "1.x"
