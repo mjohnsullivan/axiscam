@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/mjohnsullivan/axiscam.png)](http://travis-ci.org/mjohnsullivan/axiscam)
+
 AxisCam
 =======
 

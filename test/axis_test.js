@@ -91,4 +91,25 @@ describe('axis', function() {
         })
     })
 
+    describe('createMotionStream()', function() {
+        it('should create a stream of motion events', function(done) {
+            this.timeout(10000)
+            this.axisCam.createMotionStream(function(err, motionStream) {
+                assert.ifError(err)
+
+                motionStream.on('data', function(data) {
+                    assert(data)
+                    assert.equal(data.group, 0)
+                    assert.equal(data.level, 0)
+                    assert.equal(data.threshold, 10)
+                })
+
+                motionStream.on('end', function() {
+                    done()
+                })
+            })
+
+        })
+    })
+
 })

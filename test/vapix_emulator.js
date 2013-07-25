@@ -27,6 +27,19 @@ var route = function(req, res) {
         res.writeHead(404, {'Content-Type': 'text/plain'})
         res.end('Jul 24, 2013 19:19:17')
     }
+    else if (path === '/axis-cgi/motion/motiondata.cgi') {
+        var counter = 0
+        // Emit a motion event every half second
+        res.writeHead(404, {'Content-Type': 'text/plain'})
+        var emitMotion = function() {
+            res.write('group=0;level=0;threshold=10;\n')
+            if (++counter < 10)
+                setTimeout(emitMotion, 500)
+            else
+                res.end()
+        }
+        emitMotion()
+    }
     else {
         res.writeHead(404, {'Content-Type': 'text/html'})
         res.end('<h1>404</h1><p>Page not found</p>')
