@@ -34,7 +34,7 @@ var route = function(req, res) {
         var emitMotion = function() {
             res.write('group=0;level=0;threshold=10;\n')
             if (++counter < 10)
-                setTimeout(emitMotion, 500)
+                setTimeout(emitMotion, 100)
             else
                 res.end()
         }

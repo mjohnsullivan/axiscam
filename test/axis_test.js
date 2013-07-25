@@ -93,7 +93,6 @@ describe('axis', function() {
 
     describe('createMotionStream()', function() {
         it('should create a stream of motion events', function(done) {
-            this.timeout(10000)
             this.axisCam.createMotionStream(function(err, motionStream) {
                 assert.ifError(err)
 
