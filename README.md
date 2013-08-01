@@ -73,4 +73,4 @@ axisCam.createMotionStream(function(err, stream) {
 
 ###time
 
-Passes back the camera's system time in the callback.
+Returns the camera's system time in the callback.

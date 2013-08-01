@@ -59,12 +59,16 @@ describe('axis', function() {
         it('should hold a valid jpg of the last received image', function(done) {
             var that = this
             assert(!this.axisCam._image) // should be null as no images have been received yet
-            this.axisCam.jpgStream.once('data', function(data) {
-                assert(that.axisCam._image)
-                assert.equal(that.axisCam._image.readUInt16BE(0), 0xffd8)
-                assert.equal(that.axisCam._image.readUInt16BE(data.length-2), 0xffd9)
-                done()
-            })
+            var imageChecker = function() {
+                if (that.axisCam._image) {
+                    assert.equal(that.axisCam._image.readUInt16BE(0), 0xffd8)
+                    assert.equal(that.axisCam._image.readUInt16BE(that.axisCam._image.length-2), 0xffd9)
+                    that.axisCam.jpgStream.removeListener('data', imageChecker) // So done isn't called multiple times
+                    done()
+                }
+            }
+            // Might have to go through two events, depending on which listener is added first
+            this.axisCam.jpgStream.on('data', imageChecker)
         })
     })
 
