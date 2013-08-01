@@ -24,49 +24,38 @@ any detected motion events (defaults to false).
 Test
 ----
 
-To run the tests, create a settings.json file in the test folder to point to a test camera.
-
-Motion Detection
-----------------
-
-If motion detection is activted, a motion stream is automatically started and any motion messages
-where the motion value exceeds the threshold value is emitted.
-
-```javascript
-var axis = require('lib/axis'),
-    util = require('util')
-
-var axisCam = axis.createClient({url: 'https://<user>:<passwd>@<addr>'})
-
-axis.on('motion', function(data) {
-        util.inspect(data)
-})
-```
+Run mocha on the test directory. A dummy VAPIX API server is used to stub out the camera for testing
+the Axis integration.
 
 API
 ---
 
-###createImageStream
+###videoStream
 
-Streams an image from the camera:
+Streams raw MJPEG data; handy for proxying the MJPEG stream from the camera to other sources.
+
+###imageStream
+
+Streams Javascript objects that encapsulate a raw JPEG image; it effectively strips out the images
+from the MJPEG stream, returning complete images sequentially.
 
 ```javascript
 var axis = require('lib/axis'),
     fs = require('fs')
 
 var axisCam = axis.createClient({url: 'https://<user>:<passwd>@<addr>'})
-axisCam.createImageStream(null, function(err, stream) {
-    stream.pipe(fs.createWriteStream('./image.jpg'))  
+axisCam.imageStream(null, function(err, stream) {
+    stream.pipe(fs.createWriteStream('./image.jpg'))
 })
 ```
 
-###createVideoStream
+###image
 
-Streams MJPEG
+Passes back the next image from the camera in the callback.
 
 ###createMotionStream
 
-Creates a stream of javascript objects that represent a snapshot of the Axis camera's motion detection:
+Creates a stream of javascript objects that represent the state of the Axis camera's motion detection:
 
 ```javascript
 {group: 0, level: 2, threshold: 10}
@@ -78,6 +67,10 @@ var axis = require('lib/axis'),
 
 var axisCam = axis.createClient({url: 'https://<user>:<passwd>@<addr>'})
 axisCam.createMotionStream(function(err, stream) {
-    stream.pipe(es.stringify()).pipe(process.stdout)  
+    stream.pipe(es.stringify()).pipe(process.stdout)
 })
 ```
+
+###time
+
+Passes back the camera's system time in the callback.
